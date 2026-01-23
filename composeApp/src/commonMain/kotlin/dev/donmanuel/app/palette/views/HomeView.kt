@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.donmanuel.app.palette.components.ColorCard
+import dev.donmanuel.app.palette.copyToClipboard
 import dev.donmanuel.app.palette.viewmodels.ColorViewModel
 import org.jetbrains.compose.resources.painterResource
 import palette.composeapp.generated.resources.Res
@@ -65,7 +66,6 @@ fun ContentHomeView(
     modifier: Modifier,
     viewModel: ColorViewModel = viewModel { ColorViewModel() }
 ) {
-
     val colors by viewModel.colors.collectAsState()
 
     LazyColumn(modifier) {
@@ -74,8 +74,12 @@ fun ContentHomeView(
                 color.hex,
                 color.rgb,
                 {},
-                {},
-                {},
+                {
+                    viewModel.removeColorById(color.id)
+                },
+                {
+                    copyToClipboard(color.rgb)
+                },
             )
         }
     }

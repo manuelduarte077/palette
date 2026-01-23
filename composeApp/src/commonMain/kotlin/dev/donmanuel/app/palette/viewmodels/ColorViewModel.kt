@@ -33,12 +33,14 @@ class ColorViewModel : ViewModel() {
         _colors.value += newColor
     }
 
-    fun removeColorById () {}
+    fun removeColorById(id: Int) {
+        _colors.value = _colors.value.filter { it.id != id }
+    }
 
-    fun editColorById () {}
+    fun editColorById() {}
 
-    fun copyColorById () {}
+    fun copyColorById() {}
 
-    fun shareColorById () {}
+    fun shareColorById() {}
 
 }
