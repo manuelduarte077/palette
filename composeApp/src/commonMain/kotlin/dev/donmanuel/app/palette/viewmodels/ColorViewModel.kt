@@ -1,6 +1,7 @@
 package dev.donmanuel.app.palette.viewmodels
 
 import androidx.lifecycle.ViewModel
+import dev.donmanuel.app.palette.copyToClipboard
 import dev.donmanuel.app.palette.models.ColorModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,10 +38,26 @@ class ColorViewModel : ViewModel() {
         _colors.value = _colors.value.filter { it.id != id }
     }
 
-    fun editColorById() {}
+    fun editColorById(id: Int, r: Int, g: Int, b: Int) {
+        val hex = ColorModel.rgbToHex(r, g, b)
+        val rgb = "RGB($r, $g, $b)"
 
-    fun copyColorById() {}
+        _colors.value = _colors.value.map { color ->
+            if (color.id == id) {
+                color.copy(id = id, red = r, green = g, blue = b, hex = hex, rgb = rgb)
+            } else {
+                color
+            }
+        }
+    }
 
-    fun shareColorById() {}
+    fun reset() {
+        _colors.value = emptyList()
+    }
+
+    fun copyAll() {
+        val hexString = _colors.value.joinToString(separator = "\n") { it.hex }
+        copyToClipboard(hexString)
+    }
 
 }

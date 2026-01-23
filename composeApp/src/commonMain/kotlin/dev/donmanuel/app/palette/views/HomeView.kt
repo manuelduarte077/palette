@@ -1,20 +1,28 @@
 package dev.donmanuel.app.palette.views
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CopyAll
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -26,8 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.donmanuel.app.palette.components.ColorCard
 import dev.donmanuel.app.palette.components.MainSlider
@@ -40,32 +52,43 @@ import palette.composeapp.generated.resources.palette
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(viewModel: ColorViewModel = viewModel { ColorViewModel() }) {
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                {
-                    Row {
-                        Image(
-                            painterResource(Res.drawable.palette),
-                            "Logo",
-                            modifier = Modifier.height(26.dp)
-                        )
-                    }
+    Scaffold(topBar = {
+        CenterAlignedTopAppBar(
+            {
+                Row {
+                    Image(
+                        painterResource(Res.drawable.palette),
+                        "Logo",
+                        modifier = Modifier.height(26.dp)
+                    )
                 }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                {
-                    viewModel.generateColor()
-                },
-                containerColor = Color.Black,
-                contentColor = Color.White,
-            ) {
-                Icon(Icons.Filled.Add, "Add")
+            },
+            actions = {
+                IconButton({
+                    viewModel.copyAll()
+                }) {
+                    Icon(Icons.Default.CopyAll, "Copy All")
+                }
+            },
+            navigationIcon = {
+                IconButton({
+                    viewModel.reset()
+                }) {
+                    Icon(Icons.Default.Restore, "Reset")
+                }
             }
+        )
+    }, floatingActionButton = {
+        FloatingActionButton(
+            {
+                viewModel.generateColor()
+            },
+            containerColor = Color.Black,
+            contentColor = Color.White,
+        ) {
+            Icon(Icons.Filled.Add, "Add")
         }
-    ) { innerPadding ->
+    }) { innerPadding ->
         ContentHomeView(modifier = Modifier.padding(innerPadding))
     }
 }
@@ -74,8 +97,7 @@ fun HomeView(viewModel: ColorViewModel = viewModel { ColorViewModel() }) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentHomeView(
-    modifier: Modifier,
-    viewModel: ColorViewModel = viewModel { ColorViewModel() }
+    modifier: Modifier, viewModel: ColorViewModel = viewModel { ColorViewModel() }
 ) {
     val colors by viewModel.colors.collectAsState()
 
@@ -113,16 +135,24 @@ fun ContentHomeView(
 
     if (showModal) {
         ModalBottomSheet(
-            onDismissRequest = { showModal },
-            sheetState = modalState
+            onDismissRequest = { showModal }, sheetState = modalState
         ) {
 
             Column(
-                modifier = Modifier
-                    .padding(40.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.padding(40.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                Text("Edit Color", fontWeight = FontWeight.Bold, fontSize = 25.sp)
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Box(
+                    modifier = Modifier.fillMaxWidth().size(80.dp).shadow(
+                        elevation = 12.dp, shape = RectangleShape
+                    ).background(Color(red.toInt(), green.toInt(), blue.toInt()))
+                )
+                Spacer(modifier = Modifier.height(25.dp))
+
                 MainSlider(
                     value = red,
                     onValueChange = { red = it },
@@ -132,7 +162,7 @@ fun ContentHomeView(
                 MainSlider(
                     value = green,
                     onValueChange = { green = it },
-                    color = Color.Blue,
+                    color = Color.Green,
                 )
 
                 MainSlider(
@@ -140,6 +170,14 @@ fun ContentHomeView(
                     onValueChange = { blue = it },
                     color = Color.Blue,
                 )
+
+                OutlinedButton({
+                    viewModel.editColorById(id, red.toInt(), green.toInt(), blue.toInt())
+                    showModal = false
+                }) {
+                    Text("Change Color", fontWeight = FontWeight.Bold)
+                }
+
             }
 
         }
